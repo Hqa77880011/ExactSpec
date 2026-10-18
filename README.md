@@ -58,3 +58,16 @@ Commands read the JSON configuration. `--data`, `--output`, `--device`, `--varia
 The supplied worker model has no mutable forward buffers: CIFAR ResNet uses GroupNorm, and the small MLP uses task-seeded dropout. This makes losing forward executions side-effect free. General BatchNorm shadow-buffer publication is not implemented. The central gradient transfer uses Python process pipes and canonical aggregation rather than a multi-node DDP SUM collective. It preserves the accepted-gradient semantics for this execution model, while IPC overhead and local device sharing affect its performance. The supplied suite covers CIFAR and the development workload, and does not preload the paper's language-model results.
 
 Data, weights and generated outputs are ignored by Git. Run directories store the effective `config.json`, CSV measurements and JSON metrics. Plots read the generated measurement files.
+
+## Registered compact reproduction setting
+
+Two CPU spawn workers, a 64-wide MLP with task-seeded dropout, batch 32 split into microbatches of four, and declared fail-slow delay. No BatchNorm state or post-grant process crash is part of this setting.
+
+Run from the repository root after installation. The following commands use the registered setting; they are provided for execution and have not been run as part of the source review.
+
+```bash
+python -m exactspec prepare --config configs/reproduce.json
+python -m exactspec compare --config configs/reproduce.json --output outputs/reproduce_comparison
+```
+
+This setting needs no external dataset or pretrained weights. Generated inputs and declared fault/shift laws define the finite task; reported quantities retain that provenance.
